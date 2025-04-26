@@ -6,19 +6,17 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct ContentView: View {
-    @State private var friends: [Friend] = [
-        Friend(name: "Taylor Swift", birthday: .now),
-        Friend(name: "Selena Gomez", birthday: Date(timeIntervalSince1970: 0))
-    ]
-    
+    @Query private var friends: [Friend]
+    @Environment(\.modelContext) private var context
     @State private var newName = ""
     @State private var newBirthday = Date.now
     
     var body: some View {
         NavigationStack {
-            List(friends, id: \.name) { Friend in
+            List(friends) { Friend in
                 HStack{
                     Text(Friend.name)
                     Spacer()
@@ -38,7 +36,7 @@ struct ContentView: View {
                     }
                     Button("Save"){
                         let newFriend = Friend(name: newName, birthday: newBirthday)
-                        friends.append(newFriend)
+                        context.insert(newFriend)
                         newName = ""
                         newBirthday = Date.now
                         
@@ -57,5 +55,7 @@ struct ContentView: View {
 //end struct
     #Preview {
         ContentView()
+            .modelContainer(for: Friend.self, inMemory: true)
+        
     }
 
