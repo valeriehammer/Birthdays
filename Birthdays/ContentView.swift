@@ -13,44 +13,62 @@ struct ContentView: View {
     @Environment(\.modelContext) private var context
     @State private var newName = ""
     @State private var newBirthday = Date.now
+    @State private var selectedFriend: Friend?
     
     var body: some View {
         NavigationStack {
             List {
-                ForEach(friends) { Friend in
+                ForEach(friends) { friend in
                     HStack{
-                        Text(Friend.name)
+                        Text(friend.name)
                         Spacer()
-                        Text(Friend.birthday, format: .dateTime.month(.wide).day().year())
+                        Text(friend.birthday, format: .dateTime.month(.wide).day().year())
                     }
                     //  end HStack
+                    .onTapGesture {
+                        selectedFriend = friend
+                    }
+                    // end Tap Gesture
                 }
                 // end ForEach(friends)
                 .onDelete(perform: deleteFriend)
             }
             // endList
+            
             .navigationTitle("Birthdays")
+            .sheet(item: $selectedFriend) { friend in
+                NavigationStack {
+                    EditFriendView(friend: friend)
+                }
+                // end Navigation Stack
+            }
+            // end .sheet
+                
             .safeAreaInset(edge: .bottom) {
                 VStack{
                     Text("New Birthday")
                         .font(.headline)
-                    DatePicker(selection: $newBirthday, in: Date.distantPast...Date.now, displayedComponents: .date) {
+                    DatePicker(selection: $newBirthday, in: Date.distantPast...Date.now, displayedComponents: .date){
                         TextField("Name", text: $newName)
                             .textFieldStyle(.roundedBorder)
                     }
-                    Button("Save"){
-                        let newFriend = Friend(name: newName, birthday: newBirthday)
-                        context.insert(newFriend)
-                        newName = ""
-                        newBirthday = Date.now
-                        
+                        //end DatePicker
+                        Button("Save"){
+                            let newFriend = Friend(name: newName, birthday: newBirthday)
+                            context.insert(newFriend)
+                            newName = ""
+                            newBirthday = Date.now
+                            
+                        }
+                        .bold()
+                        //end Button
                     }
-                    .bold()
+                    .padding()
+                    .background(.bar)
+                    //endVStack
                 }
-                .padding()
-                .background(.bar)
-            }
-            //
+                // end .safeAreaInset
+            
         }
         //    endNavigationStack
     }
@@ -62,6 +80,7 @@ struct ContentView: View {
             context.delete(friendToDelete)
         }
     }
+    // end deleteFriend function
 }
 //end struct
     #Preview {

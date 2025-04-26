@@ -15,5 +15,7 @@ struct BirthdaysApp: App {
             ContentView()
                 .modelContainer(for: Friend.self)
         }
+        
     }
+    
 }
